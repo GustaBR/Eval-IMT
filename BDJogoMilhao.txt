@@ -1,0 +1,119 @@
+---------------
+Acesso ao Banco de Dados
+
+Host:jogomilhao-pi11semestre.l.aivencloud.com
+Port:25159  #### não utilizado no código
+User:avnadmin
+Password:AVNS_2oEh5hU00BYuzgIhTXP
+
+---------------
+
+DROP SCHEMA IF EXISTS jogomilhao;
+CREATE SCHEMA jogomilhao;
+USE jogomilhao;
+
+# lista aluno
+DROP TABLE IF EXISTS aluno CASCADE;
+CREATE TABLE aluno(
+idAluno INT PRIMARY KEY AUTO_INCREMENT,
+nomeAluno VARCHAR(80) NOT NULL,
+mailAluno VARCHAR(320) NOT NULL,
+senhaAluno VARCHAR(200) NOT NULL,
+pontuacao BIGINT NOT NULL);
+
+# populando aluno
+INSERT INTO aluno (nomeAluno, mailAluno, senhaAluno, pontuacao) 
+VALUES ('Mario', 'mario@mail.com', 'sim', 1000);
+
+# lista materia
+DROP TABLE IF EXISTS materia CASCADE;
+CREATE TABLE materia(
+idMateria INT PRIMARY KEY AUTO_INCREMENT,
+nomeMateria VARCHAR(20) NOT NULL);
+
+# populando materia
+INSERT INTO materia (nomeMateria) VALUES ('Geografia');
+
+#lista prof
+DROP TABLE IF EXISTS professor CASCADE;
+CREATE TABLE professor(
+idProf INT PRIMARY KEY AUTO_INCREMENT,
+nomeProf VARCHAR(80) NOT NULL,
+mailProf VARCHAR(320) NOT NULL,
+senhaProf VARCHAR(200) NOT NULL,
+idMateria INT NOT NULL,
+FOREIGN KEY (idMateria) REFERENCES materia (idMateria)
+ON DELETE RESTRICT ON UPDATE CASCADE);
+
+#populando professor
+INSERT INTO professor (nomeProf, mailProf, senhaProf, idMateria) 
+VALUES ('José', 'jose@ma.c', 'adm', 1);
+
+#lista serie
+DROP TABLE IF EXISTS serie CASCADE;
+CREATE TABLE serie(
+serieAtual INT NOT NULL,
+idAluno INT NOT NULL,
+idProf INT NOT NULL,
+FOREIGN KEY (idProf) REFERENCES professor (idProf)
+ON DELETE CASCADE ON UPDATE CASCADE,
+PRIMARY KEY (idAluno, idProf),
+FOREIGN KEY (idAluno) REFERENCES aluno (idAluno) ON DELETE CASCADE ON UPDATE CASCADE);
+
+#populando serie
+INSERT INTO serie VALUES (13, 1, 1);
+
+#lista materiaDada
+DROP TABLE IF EXISTS materiaDada CASCADE;
+CREATE TABLE materiaDada(
+idMateria INT NOT NULL,
+idProf INT NOT NULL,
+PRIMARY KEY (idMateria, idProf),
+FOREIGN KEY (idMateria) REFERENCES materia (idMateria) 
+ON DELETE RESTRICT ON UPDATE CASCADE,
+FOREIGN KEY (idProf) REFERENCES professor (idProf) 
+ON DELETE RESTRICT ON UPDATE CASCADE);
+
+#populando matéria dada
+INSERT INTO materiaDada VALUES (1,1);
+
+# lista questões
+DROP TABLE IF EXISTS questoes CASCADE;
+CREATE TABLE questoes(
+idQuest INT PRIMARY KEY AUTO_INCREMENT,
+difQuest CHAR(1) NOT NULL CHECK (difQuest IN ('F','M','D')),
+valQuest INT(100) NOT NULL,
+enuncQuest VARCHAR(100) NOT NULL,
+idMateria INT NOT NULL,
+FOREIGN KEY (idMateria) REFERENCES materia (idMateria)
+ON DELETE RESTRICT ON UPDATE RESTRICT);
+
+# populando questões
+
+
+#lista alternativas
+DROP TABLE IF EXISTS alternativas CASCADE;
+CREATE TABLE alternativas(
+idAlternativa INT NOT NULL,
+resposta VARCHAR (30) NOT NULL,
+correta BOOLEAN NOT NULL,
+idQuest INT NOT NULL,
+PRIMARY KEY (idQuest, idAlternativa),
+FOREIGN KEY (idQuest) REFERENCES questoes (idQuest) 
+ON DELETE CASCADE ON UPDATE CASCADE);
+
+# populando alternativas
+
+
+#lista dicas
+DROP TABLE IF EXISTS dicas CASCADE;
+CREATE TABLE dicas(
+idDica INT NOT NULL,
+tpDica CHAR(5) NOT NULL,
+idQuest INT NOT NULL,
+PRIMARY KEY (idQuest, idDica),
+FOREIGN KEY (idQuest) REFERENCES questoes (idQuest) 
+ON DELETE CASCADE ON UPDATE CASCADE);
+
+#populando dicas
+
