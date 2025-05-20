@@ -1,18 +1,18 @@
 import pygame
-from settings import THEME_POLIEDRO, FONT_BOLD, FONT_REG, SND_ERROR, SND_SUCCESS
+from config import Tema_Poliedro, fonte_negrito, fonte_regular, som_erro, som_correto
 from components.input_box import InputBox
-from components.button import Button
-from settings import ICON_USER, ICON_LOCK, ASSETS_PATH
+from components.botao import Button
+from config import icone_usuario, icone_cadeado, imagem
 
 class LoginScreen:
     def __init__(self, surface, theme=None):
         self.surface = surface
-        self.theme = theme or THEME_POLIEDRO
+        self.theme = theme or Tema_Poliedro
         self.bg_color = self.theme["bg"]
 
         # Inputs
-        self.input_user = InputBox(surface, (0.2, 0.48, 0.6, 0.068), "Usuário", ICON_USER)
-        self.input_pass = InputBox(surface, (0.2, 0.60, 0.6, 0.068), "Senha", ICON_LOCK, is_password=True)
+        self.input_user = InputBox(surface, (0.2, 0.48, 0.6, 0.068), "Usuário", icone_usuario)
+        self.input_pass = InputBox(surface, (0.2, 0.60, 0.6, 0.068), "Senha", icone_cadeado, is_password=True)
 
         # Botão entrar
         self.btn_login = Button(surface, (0.2, 0.72, 0.6, 0.09), "Entrar")
@@ -22,9 +22,8 @@ class LoginScreen:
         self.message_color = self.theme["error"]
         self.message_timer = 0
 
-        # Carregar imagem original apenas uma vez
         try:
-            self.header_img_original = pygame.image.load(f"{ASSETS_PATH}/poliedro.png").convert_alpha()
+            self.header_img_original = pygame.image.load(f"{imagem}/poliedro.png").convert_alpha()
         except Exception:
             self.header_img_original = None
 
@@ -40,27 +39,32 @@ class LoginScreen:
 
         if not user or not pwd:
             self.set_message("Preencha todos os campos.", self.theme["error"])
-            if SND_ERROR:
-                SND_ERROR.play()
+            if som_erro:
+                som_erro.play()
             return
 
         if user == "admin" and pwd == "1234":
             self.set_message("Login bem sucedido!", self.theme["accent"])
-            if SND_SUCCESS:
-                SND_SUCCESS.play()
+            if som_correto:
+                som_correto.play()
         else:
             self.set_message("Usuário ou senha incorretos.", self.theme["error"])
-            if SND_ERROR:
-                SND_ERROR.play()
+            if som_erro:
+                som_erro.play()
 
     def set_message(self, text, color):
         self.message = text
         self.message_color = color
-        self.message_timer = 3  # segundos
+        self.message_timer = 3
 
     def update(self, dt):
         self.input_user.update(dt)
         self.input_pass.update(dt)
+
+        # Ativa o botão somente se ambos campos estiverem preenchidos
+        campos_preenchidos = bool(self.input_user.text.strip()) and bool(self.input_pass.text.strip())
+        self.btn_login.set_active(campos_preenchidos)
+
         self.btn_login.update(dt)
 
         if self.message_timer > 0:
@@ -85,31 +89,27 @@ class LoginScreen:
                 new_h = max_height
 
             scaled_img = pygame.transform.smoothscale(self.header_img_original, (new_w, new_h))
-            x_pos = (width - new_w) // 2  
+            x_pos = (width - new_w) // 2 
             self.surface.blit(scaled_img, (x_pos, 0))
             header_height = new_h
         else:
             header_height = 0
 
-        # Título abaixo da imagem
         title_y = header_height + int(height * 0.03)
-        title_surf = FONT_BOLD.render("Entrar na Plataforma Poliedro", True, self.theme["accent"])
+        title_surf = fonte_negrito.render("Entrar na Plataforma Poliedro", True, self.theme["accent"])
         title_rect = title_surf.get_rect(center=(width // 2, title_y))
         self.surface.blit(title_surf, title_rect)
 
-        # Descrição abaixo do título
         desc_y = title_y + int(height * 0.05)
-        desc_surf = FONT_REG.render("Digite seu usuário e senha para continuar.", True, self.theme["accent"])
+        desc_surf = fonte_regular.render("Digite seu usuário e senha para continuar.", True, self.theme["accent"])
         desc_rect = desc_surf.get_rect(center=(width // 2, desc_y))
         self.surface.blit(desc_surf, desc_rect)
 
-        # Inputs e botão
         self.input_user.draw()
         self.input_pass.draw()
         self.btn_login.draw()
 
-        # Mensagem
         if self.message:
-            msg_surf = FONT_REG.render(self.message, True, self.message_color)
+            msg_surf = fonte_regular.render(self.message, True, self.message_color)
             msg_rect = msg_surf.get_rect(center=(width // 2, int(height * 0.85)))
             self.surface.blit(msg_surf, msg_rect)

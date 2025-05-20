@@ -1,7 +1,7 @@
 import pygame
 from utils import load_icon
-from components.animated_placeholder import AnimatedPlaceholder
-from settings import FONT_REG, THEME_POLIEDRO, ICON_EYE, ICON_EYE_OFF, SND_CLICK
+from components.placeholder import AnimatedPlaceholder
+from config import fonte_regular, Tema_Poliedro, icone_olho_on, icone_olho_off, som_clicar
 
 class InputBox:
     CURSOR_BLINK_INTERVAL = 0.6
@@ -16,11 +16,13 @@ class InputBox:
         self.active = False
         self.is_password = is_password
         self.show_password = False
-        self.theme = theme or THEME_POLIEDRO
+        self.theme = theme or Tema_Poliedro
 
         self.icon_size = 26
         self.icon = load_icon(icon_path, self.icon_size) if icon_path else None
-        self.font = FONT_REG
+        self.font = fonte_regular
+
+        # Placeholder animado para texto do input
         self.placeholder = AnimatedPlaceholder(
             placeholder, self.font, (0, 0),
             self.theme["placeholder"], self.theme["accent"]
@@ -31,19 +33,18 @@ class InputBox:
 
         self.rect = pygame.Rect(0, 0, 0, 0)
 
-        # Backspace control
         self.backspace_held = False
         self.backspace_timer = 0
 
-        # Eye icon for password toggle
         self.eye_icon_size = 24
         self.icon_eye = None
         self.icon_eye_off = None
         self.eye_rect = None
 
+        # Ícones para mostrar/ocultar senha
         if self.is_password:
-            self.icon_eye = load_icon(ICON_EYE, self.eye_icon_size)
-            self.icon_eye_off = load_icon(ICON_EYE_OFF, self.eye_icon_size)
+            self.icon_eye = load_icon(icone_olho_on, self.eye_icon_size)
+            self.icon_eye_off = load_icon(icone_olho_off, self.eye_icon_size)
             self.eye_rect = pygame.Rect(0, 0, self.eye_icon_size, self.eye_icon_size)
 
         self.update_rect()
@@ -56,13 +57,13 @@ class InputBox:
             int(w * self.rel_rect[2]),
             int(h * self.rel_rect[3])
         )
+
         padding_left = 12 + (self.icon_size + 4 if self.icon else 0)
         self.placeholder.pos = (
             self.rect.x + padding_left,
             self.rect.y + self.rect.height // 2 - self.font.get_height() // 2
         )
 
-        # Position eye icon on right for password fields
         if self.is_password and self.eye_rect:
             eye_x = self.rect.right - 10 - self.eye_icon_size
             eye_y = self.rect.y + (self.rect.height - self.eye_icon_size) // 2
@@ -70,16 +71,16 @@ class InputBox:
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
+            # Ativa o input se clicado dentro da área
             if self.rect.collidepoint(event.pos):
                 self.active = True
                 self.cursor_visible = True
                 self.cursor_timer = 0
-                # Toggle password visibility if eye icon clicked
                 if self.is_password and self.eye_rect and self.eye_rect.collidepoint(event.pos):
                     self.show_password = not self.show_password
-                    if SND_CLICK:
-                        SND_CLICK.play()
-                    return  # Prevent text input on eye click
+                    if som_clicar:
+                        som_clicar.play()
+                    return  # Evita entrada de texto ao clicar no olho
             else:
                 self.active = False
 
@@ -91,10 +92,11 @@ class InputBox:
                     if self.text:
                         self.text = self.text[:-1]
                 elif event.key == pygame.K_RETURN:
-                    pass  # Could trigger submit
+                    pass
                 elif event.key == pygame.K_v and (event.mod & pygame.KMOD_CTRL):
-                    pass  # Paste (disabled)
+                    pass
                 else:
+                    # Adiciona caracteres imprimíveis ao texto
                     if event.unicode and event.unicode.isprintable():
                         self.text += event.unicode
 
@@ -104,15 +106,17 @@ class InputBox:
                     self.backspace_timer = 0
 
     def update(self, dt):
+        # Controla o piscar do cursor
         self.cursor_timer += dt
         if self.cursor_timer >= self.CURSOR_BLINK_INTERVAL:
             self.cursor_timer = 0
             self.cursor_visible = not self.cursor_visible
 
         self.update_rect()
+        # Atualiza animação do placeholder
         self.placeholder.update(self.active, bool(self.text), dt)
 
-        # Backspace repeat logic
+        # Lógica para repetir backspace ao segurar a tecla
         if self.active and self.backspace_held:
             self.backspace_timer += dt
             if self.backspace_timer >= self.BACKSPACE_REPEAT_DELAY:
@@ -122,18 +126,18 @@ class InputBox:
                     self.backspace_timer -= self.BACKSPACE_REPEAT_INTERVAL
 
     def draw(self):
-        # Draw input background and border
+        # Desenha o fundo e borda do input box
         pygame.draw.rect(self.surface, self.theme["input_bg"], self.rect, border_radius=12)
         border_color = self.theme["input_focus"] if self.active else self.theme["input_border"]
         pygame.draw.rect(self.surface, border_color, self.rect, width=2, border_radius=12)
 
-        # Draw icon if any
+        # Desenha o ícone
         icon_x = self.rect.x + 10
         icon_y = self.rect.y + self.rect.height // 2 - self.icon_size // 2
         if self.icon:
             self.surface.blit(self.icon, (icon_x, icon_y))
 
-        # Text display
+        # Define posição do texto dentro do input
         text_x = icon_x + (self.icon_size + 10 if self.icon else 10)
         text_y = self.rect.y + self.rect.height // 2
 
@@ -143,15 +147,13 @@ class InputBox:
         text_rect.midleft = (text_x, text_y)
         self.surface.blit(text_surf, text_rect)
 
-        # Cursor blinking
         if self.active and self.cursor_visible:
             cursor_x = text_rect.right + 2
             pygame.draw.line(self.surface, self.theme["text"], (cursor_x, text_rect.top), (cursor_x, text_rect.bottom), 2)
 
-        # Placeholder animation
         self.placeholder.draw(self.surface)
 
-        # Draw eye icon for password toggle
+        # Desenha o ícone do olho para senha
         if self.is_password and self.eye_rect:
             eye_icon = self.icon_eye if self.show_password else self.icon_eye_off
             if eye_icon:

@@ -1,36 +1,46 @@
-from components.login_screen import LoginScreen
-from settings import WIDTH, HEIGHT, FPS, MIN_WIDTH, MIN_HEIGHT
 import pygame
+from components.tela_login import LoginScreen
+from config import largura, altura, FPS, min_altura, min_largura
 
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-    pygame.display.set_caption("Login Poliedro")
-    clock = pygame.time.Clock()
+class App:
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((largura, altura), pygame.RESIZABLE)
+        pygame.display.set_caption("Login Poliedro")
+        self.clock = pygame.time.Clock()
+        self.running = True
 
-    login_screen = LoginScreen(screen)  # agora o nome está definido
+        self.login = LoginScreen(self.screen)
 
-    running = True
-    while running:
-        dt = clock.tick(FPS) / 1000  # segundos
+    def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                self.running = False
 
             elif event.type == pygame.VIDEORESIZE:
-                new_w = max(event.w, MIN_WIDTH)
-                new_h = max(event.h, MIN_HEIGHT)
-                screen = pygame.display.set_mode((new_w, new_h), pygame.RESIZABLE)
-                login_screen.surface = screen
-                login_screen.width, login_screen.height = screen.get_size()
+                largura = max(event.w, min_largura)
+                altura = max(event.h, min_altura)
+                self.screen = pygame.display.set_mode((largura, altura), pygame.RESIZABLE)
+                self.login.surface = self.screen
+                self.login.largura, self.login.altura = self.screen.get_size()
 
-            login_screen.handle_event(event)
+            self.login.handle_event(event)
 
-        login_screen.update(dt)
-        login_screen.draw()
+    def update(self, dt):
+        self.login.update(dt)
+
+    def draw(self):
+        self.login.draw()
         pygame.display.flip()
 
-    pygame.quit()
+    def run(self):
+        while self.running:
+            dt = self.clock.tick(FPS) / 1000
+            self.handle_events()
+            self.update(dt)
+            self.draw()
+        pygame.quit()
 
 if __name__ == "__main__":
-    main()
+    app = App()
+    app.run()
