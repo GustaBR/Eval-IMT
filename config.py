@@ -9,9 +9,8 @@ FPS = 60
 largura, altura = 800, 600
 min_largura, min_altura = 400, 300
 
-# Caminhos dos assets (imagens e sons)
-imagem = os.path.join(os.path.dirname(__file__), "imagens")
 
+imagem = os.path.join(os.path.dirname(__file__), "imagens") # Caminhos dos assets (imagens e sons)
 icone_usuario = os.path.join(imagem, "icone_usuario.png")
 icone_cadeado = os.path.join(imagem, "icone_cadeado.png")
 icone_olho_on = os.path.join(imagem, "icone_olho_aberto.png")

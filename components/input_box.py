@@ -22,8 +22,7 @@ class InputBox:
         self.icon = load_icon(icon_path, self.icon_size) if icon_path else None
         self.font = fonte_regular
 
-        # Placeholder animado para texto do input
-        self.placeholder = AnimatedPlaceholder(
+        self.placeholder = AnimatedPlaceholder( # Placeholder animado para texto do input
             placeholder, self.font, (0, 0),
             self.theme["placeholder"], self.theme["accent"]
         )
@@ -41,8 +40,7 @@ class InputBox:
         self.icon_eye_off = None
         self.eye_rect = None
 
-        # Ícones para mostrar/ocultar senha
-        if self.is_password:
+        if self.is_password: # Ícones para mostrar/ocultar senha
             self.icon_eye = load_icon(icone_olho_on, self.eye_icon_size)
             self.icon_eye_off = load_icon(icone_olho_off, self.eye_icon_size)
             self.eye_rect = pygame.Rect(0, 0, self.eye_icon_size, self.eye_icon_size)
@@ -71,8 +69,7 @@ class InputBox:
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # Ativa o input se clicado dentro da área
-            if self.rect.collidepoint(event.pos):
+            if self.rect.collidepoint(event.pos): # Ativa o input se clicado dentro da área
                 self.active = True
                 self.cursor_visible = True
                 self.cursor_timer = 0
@@ -95,8 +92,7 @@ class InputBox:
                     pass
                 elif event.key == pygame.K_v and (event.mod & pygame.KMOD_CTRL):
                     pass
-                else:
-                    # Adiciona caracteres imprimíveis ao texto
+                else: # Adiciona caracteres imprimíveis ao texto
                     if event.unicode and event.unicode.isprintable():
                         self.text += event.unicode
 
@@ -105,19 +101,16 @@ class InputBox:
                     self.backspace_held = False
                     self.backspace_timer = 0
 
-    def update(self, dt):
-        # Controla o piscar do cursor
+    def update(self, dt):  # Controla o piscar do cursor
         self.cursor_timer += dt
-        if self.cursor_timer >= self.CURSOR_BLINK_INTERVAL:
+        if self.cursor_timer >= self.CURSOR_BLINK_INTERVAL:  
             self.cursor_timer = 0
             self.cursor_visible = not self.cursor_visible
 
         self.update_rect()
-        # Atualiza animação do placeholder
-        self.placeholder.update(self.active, bool(self.text), dt)
+        self.placeholder.update(self.active, bool(self.text), dt) # Atualiza animação do placeholder
 
-        # Lógica para repetir backspace ao segurar a tecla
-        if self.active and self.backspace_held:
+        if self.active and self.backspace_held:  # Lógica para repetir backspace ao segurar a tecla
             self.backspace_timer += dt
             if self.backspace_timer >= self.BACKSPACE_REPEAT_DELAY:
                 repeats = int((self.backspace_timer - self.BACKSPACE_REPEAT_DELAY) / self.BACKSPACE_REPEAT_INTERVAL)
@@ -126,19 +119,16 @@ class InputBox:
                     self.backspace_timer -= self.BACKSPACE_REPEAT_INTERVAL
 
     def draw(self):
-        # Desenha o fundo e borda do input box
-        pygame.draw.rect(self.surface, self.theme["input_bg"], self.rect, border_radius=12)
+        pygame.draw.rect(self.surface, self.theme["input_bg"], self.rect, border_radius=12)  # Desenha o fundo e borda do input box
         border_color = self.theme["input_focus"] if self.active else self.theme["input_border"]
         pygame.draw.rect(self.surface, border_color, self.rect, width=2, border_radius=12)
 
-        # Desenha o ícone
         icon_x = self.rect.x + 10
-        icon_y = self.rect.y + self.rect.height // 2 - self.icon_size // 2
+        icon_y = self.rect.y + self.rect.height // 2 - self.icon_size // 2  # Desenha o ícone
         if self.icon:
             self.surface.blit(self.icon, (icon_x, icon_y))
 
-        # Define posição do texto dentro do input
-        text_x = icon_x + (self.icon_size + 10 if self.icon else 10)
+        text_x = icon_x + (self.icon_size + 10 if self.icon else 10) # Define posição do texto dentro do input
         text_y = self.rect.y + self.rect.height // 2
 
         display_text = self.text if (not self.is_password or self.show_password) else "*" * len(self.text)

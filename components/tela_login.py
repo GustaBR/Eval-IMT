@@ -17,13 +17,11 @@ class LoginScreen:
 
         self.btn_login = Button(surface, (0.2, 0.72, 0.6, 0.09), "Entrar")
 
-        # Mensagem de erro ou sucesso
         self.message = ""
-        self.message_color = self.theme["error"]
+        self.message_color = self.theme["error"]  # Mensagem de erro ou sucesso
         self.message_timer = 0
 
-        # Tipo de usuário logado: None, "aluno" ou "professor"
-        self.user_type = None
+        self.user_type = None # Tipo de usuário logado: None, "aluno" ou "professor"
 
         try:
             self.header_img_original = pygame.image.load(f"{imagem}/poliedro.png").convert_alpha()
@@ -69,8 +67,7 @@ class LoginScreen:
         try:
             cursor = conn.cursor()
 
-            # Tenta logar como aluno
-            query_aluno = "SELECT * FROM aluno WHERE mailAluno = %s AND senhaAluno = %s"
+            query_aluno = "SELECT * FROM aluno WHERE mailAluno = %s AND senhaAluno = %s" # Tenta logar como aluno
             cursor.execute(query_aluno, (user, pwd))
             resultado = cursor.fetchone()
 
@@ -82,8 +79,7 @@ class LoginScreen:
                 conn.close()
                 return
 
-            # Se não for aluno, tenta professor
-            query_professor = "SELECT * FROM professor WHERE mailProf = %s AND senhaProf = %s"
+            query_professor = "SELECT * FROM professor WHERE mailProf = %s AND senhaProf = %s"  # Se não for aluno, tenta logar como professor
             cursor.execute(query_professor, (user, pwd))
             resultado = cursor.fetchone()
 
@@ -147,12 +143,12 @@ class LoginScreen:
             header_height = 0
 
         title_y = header_height + int(height * 0.03)
-        title_surf = fonte_negrito.render("Entrar na Plataforma Poliedro", True, self.theme["accent"])
+        title_surf = fonte_negrito.render("Entrar na Plataforma Poliedro", True, self.theme["accent"]) # Mensagem na tela de Login
         title_rect = title_surf.get_rect(center=(width // 2, title_y))
         self.surface.blit(title_surf, title_rect)
 
         desc_y = title_y + int(height * 0.05)
-        desc_surf = fonte_regular.render("Digite seu usuário e senha para continuar.", True, self.theme["accent"])
+        desc_surf = fonte_regular.render("Digite seu usuário e senha para continuar.", True, self.theme["accent"]) # Mensagem na tela de Login
         desc_rect = desc_surf.get_rect(center=(width // 2, desc_y))
         self.surface.blit(desc_surf, desc_rect)
 

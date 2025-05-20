@@ -1,13 +1,9 @@
-# *** NÃO MEXER *** 
-# -----------------------------------------------------------------------------------------------------------------
-# IMPORTAÇÕES
-# ================================================================================================================= 
 import pygame
 import sys
 import mysql.connector
 # =================================================================================================================
 # BANCO DE DADOS
-# =================================================================================================================
+
 def carregar_dados_do_banco():
     try:
         conexao = mysql.connector.connect(
@@ -27,8 +23,7 @@ def carregar_dados_do_banco():
         print("Erro ao conectar ao banco de dados:", err)
         return []
 # =================================================================================================================
-# -----------------------------------------------------------------------------------------------------------------
-# Inicializando o Pygame
+
 pygame.init()
 
 # Cores
@@ -39,8 +34,7 @@ PRETO = (0, 0, 0)
 CINZA_CLARO = (220, 220, 220)
 CINZA_ESCURO = (169, 169, 169)
 
-# Tamanho inicial
-LARGURA, ALTURA = 900, 600
+LARGURA, ALTURA = 900, 600 # Tamanho inicial da tela de ranking
 tela = pygame.display.set_mode((LARGURA, ALTURA), pygame.RESIZABLE)
 pygame.display.set_caption("Ranking")
 
@@ -48,8 +42,7 @@ pygame.display.set_caption("Ranking")
 fonte_titulo = pygame.font.SysFont("comicsansms", 64)
 fonte_input = pygame.font.SysFont("comicsansms", 24)
 
-# Função para desenhar texto na tela
-def desenhar_texto(texto, fonte, cor, superficie, x, y):
+def desenhar_texto(texto, fonte, cor, superficie, x, y): # Função para desenhar texto na tela
     texto_obj = fonte.render(texto, True, cor)
     superficie.blit(texto_obj, (x, y))
 
@@ -100,8 +93,8 @@ def main():
                     elif evento.key == pygame.K_DOWN:
                         scroll_offset += ITEM_ALTURA
 
-        # Redimensionar Elementos
-        desenhar_texto("Ranking", fonte_titulo, BRANCO, tela, LARGURA // 2 - 130, 30)
+
+        desenhar_texto("Ranking", fonte_titulo, BRANCO, tela, LARGURA // 2 - 130, 30)  # Redimensionar Elementos
 
         pygame.draw.rect(tela, DOURADO, (70, 130, LARGURA - 140, 50))
         pygame.draw.rect(tela, BRANCO, (90, 135, 70, 40))
